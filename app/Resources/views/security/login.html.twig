@@ -1,22 +1,46 @@
 {# app/Resources/views/security/login.html.twig #}
-{# ... you will probably extends your base template, like base.html.twig #}
+{% extends 'base.html.twig' %}
 
-{% if error %}
-    <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-{% endif %}
+{% block title %} Login {% endblock %}
 
-<form action="{{ path('login_check') }}" method="post">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="_username" value="{{ last_username }}" />
+{% block body %}
+	<div id="wrapper">
+        <div id="container">
+			{% if error %}
+				<div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+			{% endif %}
+			<table style="margin: 0 auto ; padding-top: 20px ; text-align:center ;">
+				<form action="{{ path('login_check') }}" method="post">
+					<tr>
+						<td>
+							<label for="username">Username:</label>
+						</td>
+						<td>
+							<input type="text" id="username" name="_username" value="{{ last_username }}" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="password">Password:</label>
+						</td>
+						<td>
+							<input type="password" id="password" name="_password" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<button type="submit">Login</button>
+						</td>
+					</tr>
+				</form>
+			</table>
+		</div>
+	</div>
+{% endblock%}
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="_password" />
-
-    {#
-        If you want to control the URL the user
-        is redirected to on success (more details below)
-        <input type="hidden" name="_target_path" value="/account" />
-    #}
-
-    <button type="submit">login</button>
-</form>
+{% block stylesheets %}
+<style>
+    #wrapper { background: #FFF; margin: 0 auto; max-width: 1000px; width: 95%; }
+    #container { padding: 2em; overflow: auto; }
+</style>
+{% endblock %}

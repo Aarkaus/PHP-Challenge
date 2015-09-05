@@ -4,9 +4,58 @@
         <meta charset="UTF-8" />
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
+		<style>
+			body,html {margin:0px;} 
+			body { background: #F5F5F5; font: 12px/1.5 sans-serif; }
+			h1 { line-height: 1.2; margin: 0 0 .5em; text-align: right; font-size: 38px; }
+			h2 { background: #B20000; color: #FFFFFF; font: 20px/1.5em sans-serif; margin-bottom: 0em;}
+			
+			#bar { 
+				background-color: #B20000;
+				color: #FFFFFF;
+				min-height: 36px;
+				height: 36px;
+			}
+			
+			#logo { padding-left: 5px ; float: left ; }
+			#logo a { color: #FFFFFF ; font-weight: bold ; font-size: 14px ; text-decoration-line: none ; }
+		
+			#user, #authenticate {
+				height: 36px ;
+				float: right ;
+				padding-right: 14px ;
+				padding-left: 14px ;
+				display: inline-block;
+			}
+			#authenticate a {color: #FFFFFF; font-weight: bold;}	
+			#authenticate:hover { background-color: #000000; }
+		</style>
+		
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
+		<div id="bar">
+			<div id="bar-inner" style="height: 36px ; line-height: 34px;">
+				<div id="logo">
+					<a href="/">
+						<img src="{{ asset('redeye-header.png') }}" style="vertical-align: middle"></img>
+						RedEye
+					</a>
+				</div>
+				<div id="authenticate">
+					{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+						<a href="../logout">Logout</a>
+					{% else %}
+						<a href="../login">Login</a>	
+					{% endif %}
+				</div>
+				<div id="user">
+					{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+						<a>Hello {{ app.user.username }}</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

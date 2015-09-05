@@ -1,0 +1,21 @@
+{# app/Resources/views/BEM.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %} Red Eye {% endblock %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+			<p>Index page for getting around</p>
+			<a href="../Billing/Estimate">Billing Estimate</a>
+		</div>
+	</div>	
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    #wrapper { background: #FFF; margin: 0 auto; max-width: 1000px; width: 95%; }
+    #container { padding: 2em; overflow: auto; text-align: center ; }
+
+</style>
+{% endblock %}

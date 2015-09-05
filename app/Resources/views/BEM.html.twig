@@ -4,26 +4,6 @@
 {% block title %} Billing Estimation {% endblock %}
 
 {% block body %}
-	<div id="bar">
-		<div id="bar-inner" style="height: 36px ; line-height: 34px;">
-			<div id="logo">
-				<a style="font-weight: bold">RedEye</a>
-			</div>
-			<div id="authenticate">
-				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
-					<a href="../logout">Logout</a>
-				{% else %}
-					<a href="../login">Login</a>	
-				{% endif %}
-			</div>
-			<div id="user">
-				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
-					<a>Hello {{ app.user.username }}</a>
-				{% endif %}
-			</div>
-		</div>
-	</div>
-	
     <div id="wrapper">
         <div id="container">
 			<div id="welcome">
@@ -110,26 +90,9 @@
 
 {% block stylesheets %}
 <style>
-	body,html {margin:0px;} 
-    body { background: #F5F5F5; font: 12px/1.5 sans-serif; }
-    h1 { line-height: 1.2; margin: 0 0 .5em; text-align: right; font-size: 38px; }
-	h2 { background: #B20000; color: #FFFFFF; font: 20px/1.5em sans-serif; margin-bottom: 0em;}
-	
 	table, th, td { border-collapse: collapse; }
 	th, td { padding: 5px; }
 	th { text-align: left; }
-	
-	#logo { background: url("{{ asset('redeye-header.png') }}") no-repeat  ; padding-left: 68px ; float: left ; }
-	
-	#user, #authenticate {
-		height: 36px ;
-		float: right ;
-		padding-right: 14px ;
-		padding-left: 14px ;
-		display: inline-block;
-	}
-	#authenticate a {color: #FFFFFF; font-weight: bold;}	
-	#authenticate:hover { background-color: #000000; }
 	
 	#customer { margin-bottom: 2em; }
 	
@@ -149,12 +112,6 @@
 	table#priceTotalsTable { background: #B20000; color: #ffffff; }
 	table#priceTotalsTable td.currency{ text-align: right; }
 	
-	#bar { background-color: #B20000;
-		color: #FFFFFF;
-		font-size: 13px;
-		min-height: 36px;
-		height: 36px;
-	}
     #wrapper { background: #FFF; margin: 0 auto; max-width: 1000px; width: 95%; }
     #container { padding: 2em; overflow: auto; }
     #welcome, #status { margin-bottom: 2em; }
