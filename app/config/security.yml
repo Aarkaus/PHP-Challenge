@@ -4,6 +4,11 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
+        customer:
+            entity:
+                class: AppBundle:Customer
+                property: username
+
         in_memory:
             memory: ~
 
@@ -12,13 +17,29 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+            provider: customer
 
         main:
             anonymous: ~
             # activate different ways to authenticate
 
-            # http_basic: ~
+            #http_basic: ~
             # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
 
-            # form_login: ~
+            form_login:
+                login_path: /login
+                check_path: /login_check
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+
+            logout:
+                path:   /logout
+                target: /login
+
+    access_control:
+        # require ROLE_ADMIN for /admin*
+        - { path: ^/Billing/Estimate , roles: ROLE_USER }
+
+    encoders:
+        AppBundle\Entity\Customer:
+            algorithm: bcrypt
+            cost: 12

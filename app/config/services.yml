@@ -7,6 +7,11 @@ services:
     app.BEMController:
         class: AppBundle\Controller\BEMController
 
+#    app.form.type.BillingInputsType:
+ #       class: Appbundle\Form\Type\BillingInputsType
+  #      tags:
+   #         - { name: form.type, alias: app_Billing_Inputs }
+
 #    service_name:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]

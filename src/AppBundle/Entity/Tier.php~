@@ -1,0 +1,41 @@
+<?php
+// src/AppBundle/Entity/Tier.php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="tier")
+ */
+class Tier
+{
+	/**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+	protected $id;
+	
+	/**
+     * @ORM\Column(type="string", length=50)
+     */	
+	protected $tierName;
+	
+	/**
+     * @ORM\Column(type="decimal", scale=2)
+     */	
+	protected $pricePerArtifact;
+	
+	/**
+     * @ORM\Column(type="integer")
+     */	
+	protected $rangeMinimum;
+	
+	/**
+     * @ORM\Column(type="integer")
+     */	
+	protected $rangeMaximum;
+}
+?>

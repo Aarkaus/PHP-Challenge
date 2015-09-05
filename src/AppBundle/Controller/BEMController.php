@@ -4,86 +4,107 @@
 namespace AppBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Entity\Tier;
 
 class BEMController
 {
-    public function calculateBillingAction($estimated, $duplicates, $versions)
+    public function calculateBillingAction($form, $tiers)
     {
 		
 		/************** Inputs **************/
-			// $estimated = Estimated Artifacts
+			// $estimated = Estimated Artefacts
 			// $duplicates = Duplicates
 			// $versions = Versions
 		
-		/*** Hardcode for now ***/
-		$database = 3; // Number of tiers
-		$tierMaxArtifacts = array(1000, 4000, 10000); // Max Artifacts per tier
-		$tierPrice = array(1, 0.7, 0.5); // Price per Artifact per Tier
-		$maxArtifacts = array_sum($tierMaxArtifacts);
-		$percent = 100;
+		/*** Hardcode for now
+		$databaseSize = 3; // Number of tiers
+		$tierMaxArtefacts = array(1000, 4000, 10000); // Max Artefacts per tier
+		$tierPrice = array(1, 0.7, 0.5); // Price per Artefact per Tier
+		*/
 		
 		// Arrays
-		$artifactsInRange = array(); // Calculated Artifacts per tier
+		$ArtefactsInRange = array(); // Calculated Artefacts per tier
 		$tierPricePerMonth = array(); // Total price per tier
+		$tierName = array();
+		$tierMinArtefacts = array();
+		$tierMaxArtefacts = array();
+		$tierPrice = array();
+		$tierArtefacts = array();
+		
+		$estimated = $form->get('estimated')->getData();
+		$duplicates = $form->get('duplicates')->getData();
+		$versions = $form->get('versions')->getData();
 
 		// Math
-		$removedArtefacts = round($estimated * ($duplicates / $percent), 0); // calculate removed artifacts
-		$folded = round(($estimated - $removedArtefacts) * ($versions / $percent), 0); // calculated folded in versions
-		$totalUnits = $estimated - $removedArtefacts - $folded; // calculate new total artefacts (now refered to as units) //TODO: check within bounds
+		$removedArtefacts = round($estimated * $duplicates, 0); // calculate removed Artefacts
+		$folded = round(($estimated - $removedArtefacts) * $versions, 0); // calculated folded in versions
+		$totalUnits = $estimated - $removedArtefacts - $folded; // calculate new total artefacts (now refered to as units)
+	
+		$expectMaxUnits = $tiers[count($tiers)-1]->getRangeMaximum();
+	
+		if(($totalUnits < 0) || ($totalUnits > $expectMaxUnits) || ($duplicates < 0) || ($duplicates > 1) || ($versions < 0) || ($versions > 1))
+		{
+			$removedArtefacts = 0;
+			$folded = 0;
+			$totalUnits = 0;
+		}
+	
+		$units = $totalUnits; // Units to be designated to a tier
+		$totalPricePerMonth = 0; // Sum of all tier prices
 		
-		if ((0 > $totalUnits) || ($totalUnits > $maxArtifacts)) {
-			return new Response(
-				'<html><body>Number of Artifacts out of bounds</body></html>' //TODO: handle graciously
-			);
+		$i = 0; // index
+		
+		// Calculate totals per tier
+		foreach ($tiers as $tier)
+		{
+			$tierName[$i] = $tier->getTierName(); 
+			$tierMinArtefacts[$i] = $tier->getRangeMinimum();
+			$tierMaxArtefacts[$i] = $tier->getRangeMaximum();
+			$tierPrice[$i] = $tier->getPricePerArtefact();
+			
+			$tierArtefacts[$i] = $tierMaxArtefacts[$i] - ($tierMinArtefacts[$i] - 1);
+			
+			if ($units > $tierArtefacts[$i]) { // if more Artefacts exist than tier maximum
+				$ArtefactsInRange [$i] = $tierArtefacts[$i]; // set Artefacts count to tier maximum
+				$units = $units - $tierArtefacts[$i]; // update remaining unit count
+			}
+			else { 
+				$ArtefactsInRange[$i] = $units; // set Artefact count to remainder, should not be more than tier maximum
+				$units = 0; // set remain unit count to zero to exit while loop
+			}
+			$tierPricePerMonth[$i] = $ArtefactsInRange[$i] * $tierPrice[$i]; // calculate total cost for tier per month
+			$totalPricePerMonth = $totalPricePerMonth + $tierPricePerMonth[$i]; // add tier total to overall total
+			$i++;
+		}	
+		
+		if ($totalUnits == 0 ) { // account for possible divide by zero
+		$avgPricePerDrawingPerMonth = 0; // calculate average price per drawing
 		}
 		else {
-			$units = $totalUnits; // Units to be designated to a tier
-			$totalPricePerMonth = 0; // Sum of all tier prices
-			
-			$i = 0; // index
-			
-			// Calculate totals per tier
-			while (($i < $database) && ($units != 0)) { 
-				if ($units > $tierMaxArtifacts[$i]) { // if more artifacts exist than tier maximum
-					$artifactsInRange [$i] = $tierMaxArtifacts[$i]; // set artifacts count to tier maximum
-					$units = $units - $tierMaxArtifacts[$i]; // update remaining unit count
-				}
-				else { 
-					$artifactsInRange[$i] = $units; // set artifact count to remainder, should not be more than tier maximum
-					$units = 0; // set remain unit count to zero to exit while loop
-				}
-				
-				$tierPricePerMonth[$i] = $artifactsInRange[$i] * $tierPrice[$i]; // calculate total cost for tier per month
-				$totalPricePerMonth = $totalPricePerMonth + $tierPricePerMonth[$i]; // add tier total to overall total
-				$i++;
-			}
-			
-			if ($totalUnits == 0 ) { // account for possible divide by zero
-			$avgPricePerDrawingPerMonth = 0; // calculate average price per drawing
-			}
-			else {
-				$avgPricePerDrawingPerMonth = $totalPricePerMonth / $totalUnits; // calculate average price per drawing
-			$pricePerAnnum = $totalPricePerMonth * 12; // calculater price per ye
-			}
-			$pricePerAnnum = $totalPricePerMonth * 12; // calculater price per year
-			
-			// Generate Response
-			
-			//$response = new Response(json_encode(array('removedArtefacts' => $removedArtefacts, 'folded' => $folded, 'totalUnits' => $totalUnits)));
-				
-			$myArray = array(
-				'removedArtefacts' => $removedArtefacts, 
-				'folded' => $folded, 
-				'totalUnits' => $totalUnits,
-				'artifactsInRange' => $artifactsInRange,
-				'tierPricePerMonth' => $tierPricePerMonth,
-				'totalPricePerMonth' => $totalPricePerMonth,
-				'avgPricePerDrawingPerMonth' => $avgPricePerDrawingPerMonth,
-				'pricePerAnnum' => $pricePerAnnum
-			);
-			
-			return $myArray;
+			$avgPricePerDrawingPerMonth = $totalPricePerMonth / $totalUnits; // calculate average price per drawing
 		}
+		$pricePerAnnum = $totalPricePerMonth * 12; // calculater price per year
+			
+		// Generate info to be displayed on webpage				
+		$myArray = array(
+			'removedArtefacts' => $removedArtefacts, 
+			'folded' => $folded, 
+			'totalUnits' => $totalUnits,
+			'ArtefactsInRange' => $ArtefactsInRange,
+			'tierPricePerMonth' => $tierPricePerMonth,
+			'totalPricePerMonth' => $totalPricePerMonth,
+			'avgPricePerDrawingPerMonth' => $avgPricePerDrawingPerMonth,
+			'pricePerAnnum' => $pricePerAnnum,
+			'tierName' => $tierName,
+			'tierMinArtefacts' => $tierMinArtefacts,
+			'tierMaxArtefacts' => $tierMaxArtefacts,
+			'tierArtefacts' => $tierArtefacts,
+			'tierPrice' => $tierPrice,
+			'tiers' => $tiers,
+			'form' => $form->createView()
+		);
+		
+		return $myArray;
     }
 }
 ?>

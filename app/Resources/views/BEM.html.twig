@@ -1,0 +1,164 @@
+{# app/Resources/views/BEM.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %} Billing Estimation {% endblock %}
+
+{% block body %}
+	<div id="bar">
+		<div id="bar-inner" style="height: 36px ; line-height: 34px;">
+			<div id="logo">
+				<a style="font-weight: bold">RedEye</a>
+			</div>
+			<div id="authenticate">
+				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+					<a href="../logout">Logout</a>
+				{% else %}
+					<a href="../login">Login</a>	
+				{% endif %}
+			</div>
+			<div id="user">
+				{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+					<a>Hello {{ app.user.username }}</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	
+    <div id="wrapper">
+        <div id="container">
+			<div id="welcome">
+				<h1><span>Billing Estimation</span></h1>
+			</div>
+
+			<div id="customer">
+				<table id="customerTable" style="width: 100%">
+					<tr><td><strong>Name:</strong></td><td>{{ app.user.title }} {{ app.user.username }}</td><td><strong>Customer ID:</strong></td><td style="text-align: right">{{ app.user.id }}</td></tr>
+					<tr><td><strong>Company:</strong></td><td>{{ app.user.company }}</td><td><strong>Date:</strong></td><td style="text-align: right">{{ "now"|date("d/m/Y") }}</td></tr>
+					<tr><td><strong>Address:</strong></td><td>{{ app.user.address }}</td></tr>
+					<tr><td><strong>Email:</strong></td><td>{{ app.user.email }}</td></tr>
+					<tr><td><strong>Mobile:</strong></td><td>{{ app.user.mobile }}</td></tr>
+					<tr><td><strong>Phone:</strong></td><td>{{ app.user.phone }}</td></tr>
+				</table>	
+			</div>
+
+			<div id="estimates">
+				{{ form_start(form) }}
+				{{ form_errors(form) }}
+				<table id="estimatesTable" style="width: 100% ; table-layout: fixed">
+					<tbody>
+						<tr><td colspan="2">Estimated Artefacts</td><td style="text-align:right">{{ form_widget(form.estimated) }}</td></tr>
+						<tr><td>Removed Artefacts</td><td style="text-align:center;">{{ form_widget(form.duplicates) }}</td><td style="text-align:right">{{ removedArtefacts|number_format(0, '.', ',')  }}</td></tr>
+						<tr><td>Folded in Versions</td><td style="text-align:center;">{{ form_widget(form.versions) }}</td><td style="text-align:right">{{ folded|number_format(0, '.', ',')  }}</td></tr>
+						<tr><td><strong>Total Units</strong></td><td>{{ form_errors(form.estimated) }} {{ form_errors(form.duplicates) }} {{ form_errors(form.versions) }}</td><td style="text-align:right"><strong>{{ totalUnits|number_format(0, '.', ',')  }}</strong></td></tr>
+						<tr><td colspan="3" style="text-align:center;">{{ form_row(form.CalculateCost) }}</td></tr>
+					</tbody>
+				</table>
+				{{ form_end(form) }}
+			</div>
+			
+			<div id="priceTiers">	
+				<h2 class="heading">Pricing Tiers</h2>
+				<table id="priceTiersTable" style="width:100% ; table-layout: fixed">
+					<tr>
+						<td class="colum-header"><strong>Tier</strong></td>
+						{% for name in tierName %}
+						<td class="colum-header"><strong>{{ name }}</strong></td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td><strong>Price Artefact / Mth</strong></td>
+						{% for price in tierPrice %}
+						<td>${{ price|number_format(2, '.', ',') }}</td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td><strong>Artefact Range</strong></td>
+						{% for min in tierMinArtefacts %}
+						<td>{{ min|number_format(0, '.', ',') }} - {{ tierMaxArtefacts[loop.index0]|number_format(0, '.', ',') }} Artefact Units</td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td><strong>Maximum No of Artefact's in Range</strong></td>
+						{% for artefacts in tierArtefacts %}
+						<td>{{ artefacts|number_format(0, '.', ',') }}</td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td class="calc-seperate-line"><strong>No of Artefact's in Range</strong></td>
+						{% for inRange in ArtefactsInRange %}
+						<td class="calc-seperate-line"><strong>{{ inRange|number_format(0, '.', ',') }}</strong></td>
+						{% endfor %}
+					</tr>
+					<tr>
+						<td><strong>Price Tier / Month</strong></td>
+						{% for priceMonth in tierPricePerMonth %}
+						<td>${{ priceMonth|number_format(2, '.', ',') }}</td>
+						{% endfor %}
+					</tr>
+				</table>
+			</div>
+			<div id="priceTotals">
+				<table id="priceTotalsTable" style="float:right ; width:250px">
+					<tr><td>Price / Mth</td><td class="currency">${{ totalPricePerMonth|number_format(2, '.', ',') }}</td></tr>
+					<tr><td>Avg / Price / Drawing / Mth</td><td class="currency">${{ avgPricePerDrawingPerMonth|number_format(2, '.', ',') }}</td></tr>
+					<tr><td>Price / PA</td><td class="currency">${{ pricePerAnnum|number_format(2, '.', ',') }}</td></tr>
+				</table>
+			</div>
+		</div>
+	</div>	
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+	body,html {margin:0px;} 
+    body { background: #F5F5F5; font: 12px/1.5 sans-serif; }
+    h1 { line-height: 1.2; margin: 0 0 .5em; text-align: right; font-size: 38px; }
+	h2 { background: #B20000; color: #FFFFFF; font: 20px/1.5em sans-serif; margin-bottom: 0em;}
+	
+	table, th, td { border-collapse: collapse; }
+	th, td { padding: 5px; }
+	th { text-align: left; }
+	
+	#logo { background: url("{{ asset('redeye-header.png') }}") no-repeat  ; padding-left: 68px ; float: left ; }
+	
+	#user, #authenticate {
+		height: 36px ;
+		float: right ;
+		padding-right: 14px ;
+		padding-left: 14px ;
+		display: inline-block;
+	}
+	#authenticate a {color: #FFFFFF; font-weight: bold;}	
+	#authenticate:hover { background-color: #000000; }
+	
+	#customer { margin-bottom: 2em; }
+	
+	#estimates { margin-bottom: 2em; }
+	table#estimatesTable { background-color:#ccc; }
+	
+	#priceTiers { margin-bottom: 2em; }
+	table#priceTiersTable td{ text-align: center; }
+	table#priceTiersTable td:nth-child(odd) { background-color:#fff; }
+	table#priceTiersTable td:nth-child(even) { background-color:#eee; }
+	table#priceTiersTable td.colum-header { font: 13px/1.5 sans-serif; }
+	table#priceTiersTable td.calc-seperate-line{
+		background-color:#ccc;
+		font: 14px/1.5 sans-serif;
+	}
+	
+	table#priceTotalsTable { background: #B20000; color: #ffffff; }
+	table#priceTotalsTable td.currency{ text-align: right; }
+	
+	#bar { background-color: #B20000;
+		color: #FFFFFF;
+		font-size: 13px;
+		min-height: 36px;
+		height: 36px;
+	}
+    #wrapper { background: #FFF; margin: 0 auto; max-width: 1000px; width: 95%; }
+    #container { padding: 2em; overflow: auto; }
+    #welcome, #status { margin-bottom: 2em; }
+    #welcome h1 span { display: block; font-size: 75%; }
+
+</style>
+{% endblock %}
