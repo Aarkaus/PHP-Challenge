@@ -31,7 +31,13 @@ class BillingEstimateController extends Controller
 		
 		$form = $this->createForm(new BillingInputsType(), $task);
 		
-		$paramerters = $this->get('app.BEMController')->calculateBillingAction($form, $tiers);
+		$estimated = $form->get('estimated')->getData();
+		$duplicates = $form->get('duplicates')->getData();
+		$versions = $form->get('versions')->getData();
+		
+		$paramerters = $this->get('app.BEMController')->calculateBillingAction($estimated, $duplicates, $versions, $tiers);
+		
+		$paramerters['form'] = $form->createView();
 		
 		return $this->render('BEM.html.twig', $paramerters);
     }
@@ -51,8 +57,14 @@ class BillingEstimateController extends Controller
 		
 		$form->handleRequest($request);
 		
-		$paramerters = $this->get('app.BEMController')->calculateBillingAction($form, $tiers);
+		$estimated = $form->get('estimated')->getData();
+		$duplicates = $form->get('duplicates')->getData();
+		$versions = $form->get('versions')->getData();
+		
+		$paramerters = $this->get('app.BEMController')->calculateBillingAction($estimated, $duplicates, $versions, $tiers);
 
+		$paramerters['form'] = $form->createView();
+		
 		if ($form->isSubmitted() && $form->isValid()) {
 
 			return $this->render('BEM.html.twig', $paramerters);

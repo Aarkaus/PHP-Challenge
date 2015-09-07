@@ -24,9 +24,12 @@ Installation
 		
 Notes
 	- To view the Billing Estimate a login is required
-	- Test logins
+	- Test logins created by createDevDatabase.bat
 		-Username: John Smith
 		-Password: test
 		
 		-Username: Jane Doe
 		-Password: test
+		
+Testing
+	-run 'phpunit -c app/' from this directory

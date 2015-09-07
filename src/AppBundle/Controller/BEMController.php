@@ -8,20 +8,13 @@ use AppBundle\Entity\Tier;
 
 class BEMController
 {
-    public function calculateBillingAction($form, $tiers)
+    public function calculateBillingAction($estimated, $duplicates, $versions, $tiers)
     {
-		
 		/************** Inputs **************/
-			// $estimated = Estimated Artefacts
-			// $duplicates = Duplicates
-			// $versions = Versions
-		
-		/*** Hardcode for now
-		$databaseSize = 3; // Number of tiers
-		$tierMaxArtefacts = array(1000, 4000, 10000); // Max Artefacts per tier
-		$tierPrice = array(1, 0.7, 0.5); // Price per Artefact per Tier
-		*/
-		
+		// $estimated = Estimated Artefacts
+		// $duplicates = Duplicates
+		// $versions = Versions
+
 		// Arrays
 		$ArtefactsInRange = array(); // Calculated Artefacts per tier
 		$tierPricePerMonth = array(); // Total price per tier
@@ -30,10 +23,6 @@ class BEMController
 		$tierMaxArtefacts = array();
 		$tierPrice = array();
 		$tierArtefacts = array();
-		
-		$estimated = $form->get('estimated')->getData();
-		$duplicates = $form->get('duplicates')->getData();
-		$versions = $form->get('versions')->getData();
 
 		// Math
 		$removedArtefacts = round($estimated * $duplicates, 0); // calculate removed Artefacts
@@ -81,7 +70,7 @@ class BEMController
 		$avgPricePerDrawingPerMonth = 0; // calculate average price per drawing
 		}
 		else {
-			$avgPricePerDrawingPerMonth = $totalPricePerMonth / $totalUnits; // calculate average price per drawing
+			$avgPricePerDrawingPerMonth = round($totalPricePerMonth / $totalUnits, 2); // calculate average price per drawing
 		}
 		$pricePerAnnum = $totalPricePerMonth * 12; // calculater price per year
 			
@@ -100,8 +89,6 @@ class BEMController
 			'tierMaxArtefacts' => $tierMaxArtefacts,
 			'tierArtefacts' => $tierArtefacts,
 			'tierPrice' => $tierPrice,
-			'tiers' => $tiers,
-			'form' => $form->createView()
 		);
 		
 		return $myArray;
